@@ -1,32 +1,28 @@
-import { useEffect, useState } from "react";
-import axios from "axios";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+
+import Signup from "./pages/Signup";
+import Login from "./pages/Login";
+import Dashboard from "./pages/Dashboard";
+
 
 function App() {
 
-  const [message, setMessage] = useState("");
-
-  useEffect(() => {
-
-    axios.get("http://127.0.0.1:8000/api/test/")
-      .then(response => {
-        setMessage(response.data.message);
-      })
-      .catch(error => {
-        console.log(error);
-      });
-
-  }, []);
-
   return (
-    <div>
-      <h1>Suraksha AI</h1>
 
-      <h2>
-        Backend Status:
-      </h2>
+    <BrowserRouter>
 
-      <p>{message}</p>
-    </div>
+      <Routes>
+
+        <Route path="/signup" element={<Signup />} />
+
+        <Route path="/login" element={<Login />} />
+
+        <Route path="/dashboard" element={<Dashboard />} />
+
+      </Routes>
+
+    </BrowserRouter>
+
   );
 }
 
