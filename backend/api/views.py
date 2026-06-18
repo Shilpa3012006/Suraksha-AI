@@ -36,3 +36,32 @@ def protected_api(request):
     return Response({
         "message": "You are authenticated"
     })
+
+from rest_framework.parsers import MultiPartParser, FormParser
+
+from .models import Evidence
+from .serializers import EvidenceSerializer
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def upload_evidence(request):
+
+    serializer = EvidenceSerializer(
+        data=request.data
+    )
+
+    if serializer.is_valid():
+
+        serializer.save(
+            user=request.user
+        )
+
+        return Response({
+            "message": "Evidence uploaded successfully"
+        })
+
+
+    return Response(
+        serializer.errors
+    )

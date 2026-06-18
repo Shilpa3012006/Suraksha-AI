@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views import test_api, signup, protected_api
+from .views import test_api, signup, protected_api, upload_evidence
 
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -19,5 +19,7 @@ urlpatterns = [
     path('refresh/', TokenRefreshView.as_view()),
 
     path('protected/', protected_api),
+
+    path('upload-evidence/', upload_evidence),
 
 ]
