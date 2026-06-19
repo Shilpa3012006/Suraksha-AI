@@ -1,4 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import UploadEvidence from "./pages/UploadEvidence";
+import EvidenceList from "./pages/EvidenceList";
 
 import Signup from "./pages/Signup";
 import Login from "./pages/Login";
@@ -12,6 +14,8 @@ function App() {
     <BrowserRouter>
 
       <Routes>
+        <Route path="/evidence" element={<EvidenceList />} />
+        <Route path="/upload" element={<UploadEvidence />} />
 
         <Route path="/signup" element={<Signup />} />
 

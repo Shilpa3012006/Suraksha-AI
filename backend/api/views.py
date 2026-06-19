@@ -65,3 +65,18 @@ def upload_evidence(request):
     return Response(
         serializer.errors
     )
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def my_evidence(request):
+
+    evidence = Evidence.objects.filter(
+        user=request.user
+    )
+
+    serializer = EvidenceSerializer(
+        evidence,
+        many=True
+    )
+
+    return Response(serializer.data)
