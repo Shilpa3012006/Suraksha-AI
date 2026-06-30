@@ -18,6 +18,15 @@ class Evidence(models.Model):
         max_length=50
     )
 
+    file_name = models.CharField(
+    max_length=255,
+    blank=True
+    )
+
+    file_size = models.BigIntegerField(
+    default=0
+    )
+
     description = models.TextField(
         blank=True
     )
@@ -67,6 +76,14 @@ class Evidence(models.Model):
 
 
     def save(self, *args, **kwargs):
+
+        if self.file:
+
+            self.file_name = self.file.name
+            self.file_size = self.file.size
+
+            if not self.file_type:
+                self.file_type = self.file.content_type
 
         super().save(*args, **kwargs)
 
