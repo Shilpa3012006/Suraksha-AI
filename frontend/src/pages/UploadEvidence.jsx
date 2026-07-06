@@ -71,10 +71,15 @@ function UploadEvidence() {
   
       alert("Evidence uploaded successfully");
   
-    } catch (error) {
-  
+    } 
+    catch (error) {
+
+      console.log(error);
+    
+      console.log(error.response);
+    
       alert("Upload failed");
-  
+    
     }
   
   };

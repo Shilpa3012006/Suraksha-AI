@@ -1,3 +1,8 @@
+import os
+from django.core.files import File
+from django.core.files.base import ContentFile
+
+from api.utils.encryption import encrypt_file
 from django.contrib.auth.models import User
 
 from rest_framework.decorators import api_view, permission_classes
@@ -53,18 +58,33 @@ def upload_evidence(request):
 
     if serializer.is_valid():
 
-        serializer.save(
+        evidence = serializer.save(
             user=request.user
         )
+
+        original_path = evidence.file.path
+
+        encrypted_path = original_path + ".encrypted"
+
+        encrypt_file(
+            original_path,
+            encrypted_path
+        )
+        with open(encrypted_path, "rb") as encrypted_file:
+
+            evidence.encrypted_file.save(
+            os.path.basename(encrypted_path),
+            File(encrypted_file),
+        save=False
+        )
+
+        evidence.save()
 
         return Response({
             "message": "Evidence uploaded successfully"
         })
 
-
-    return Response(
-        serializer.errors
-    )
+    return Response(serializer.errors)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])

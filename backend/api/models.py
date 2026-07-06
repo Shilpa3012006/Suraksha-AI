@@ -14,6 +14,12 @@ class Evidence(models.Model):
         upload_to='evidence_files/'
     )
 
+    encrypted_file = models.FileField(
+    upload_to="encrypted_evidence/",
+    blank=True,
+    null=True
+    )
+
     file_type = models.CharField(
         max_length=50
     )
