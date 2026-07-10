@@ -17,3 +17,9 @@ class EvidenceSerializer(serializers.ModelSerializer):
             'hash_value',
             'is_tampered'
         ]
+
+class VerificationSerializer(serializers.Serializer):
+
+    evidence_id = serializers.IntegerField()
+
+    file = serializers.FileField()

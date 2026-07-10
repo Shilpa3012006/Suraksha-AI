@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import UploadEvidence from "./pages/UploadEvidence";
 import EvidenceList from "./pages/EvidenceList";
+import VerifyEvidence from "./pages/VerifyEvidence";
 
 import Signup from "./pages/Signup";
 import Login from "./pages/Login";
@@ -22,6 +23,8 @@ function App() {
         <Route path="/login" element={<Login />} />
 
         <Route path="/dashboard" element={<Dashboard />} />
+
+        <Route path="/verify" element={<VerifyEvidence />}/>
 
       </Routes>
 
