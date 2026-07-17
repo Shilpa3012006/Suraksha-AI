@@ -10,6 +10,7 @@ from .serializers import (
 
 from api.utils.hashing import verify_hash, generate_hash
 from api.utils.encryption import encrypt_file
+from api.utils.backup import backup_file
 from django.contrib.auth.models import User
 
 from rest_framework.decorators import api_view, permission_classes
@@ -87,6 +88,14 @@ def upload_evidence(request):
 
         evidence.save()
 
+        backup_directory = "backups"
+
+        backup_path = backup_file(
+            encrypted_path,
+            backup_directory
+        )
+
+        print(f"Backup created at: {backup_path}")
         return Response({
             "message": "Evidence uploaded successfully"
         })
