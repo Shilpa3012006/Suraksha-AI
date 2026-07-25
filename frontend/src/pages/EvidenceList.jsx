@@ -33,6 +33,35 @@ function EvidenceList() {
 
   }, []);
 
+  const generateReport = async (evidenceId) => {
+
+  const token = localStorage.getItem("access");
+
+  try {
+
+    const response = await axios.get(
+      `http://127.0.0.1:8000/api/generate-report/${evidenceId}/`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    );
+
+    alert(response.data.message);
+
+  } catch (error) {
+
+    console.error(error);
+
+    alert("Failed to generate report.");
+
+  }
+
+};
+
+
+  
 
   return (
 
@@ -56,7 +85,9 @@ function EvidenceList() {
           <p>
             Hash: {item.hash_value}
           </p>
-
+          <button onClick={() => generateReport(item.id)}>
+            Generate Legal Report
+          </button>
           <hr />
 
         </div>

@@ -13,6 +13,7 @@ from .models import TrustedContact
 from api.utils.hashing import verify_hash, generate_hash
 from api.utils.encryption import encrypt_file
 from api.utils.backup import backup_file
+from .utils.report_generator import generate_legal_report
 from django.contrib.auth.models import User
 
 from rest_framework.decorators import api_view, permission_classes
@@ -220,5 +221,32 @@ def delete_trusted_contact(request, contact_id):
 
         return Response(
             {"error": "Trusted contact not found."},
+            status=404
+        )
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def generate_report(request, evidence_id):
+
+    try:
+
+        evidence = Evidence.objects.get(
+            id=evidence_id,
+            user=request.user
+        )
+
+        report_path = generate_legal_report(evidence)
+
+        return Response({
+            "message": "Report generated successfully.",
+            "report_path": report_path
+        })
+
+    except Evidence.DoesNotExist:
+
+        return Response(
+            {
+                "error": "Evidence not found."
+            },
             status=404
         )
