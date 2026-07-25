@@ -23,3 +23,18 @@ class VerificationSerializer(serializers.Serializer):
     evidence_id = serializers.IntegerField()
 
     file = serializers.FileField()
+
+from .models import TrustedContact
+
+class TrustedContactSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TrustedContact
+        fields = [
+            "id",
+            "name",
+            "email",
+            "phone",
+            "relationship",
+            "created_at",
+        ]
+        read_only_fields = ["id", "created_at"]

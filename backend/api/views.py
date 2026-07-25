@@ -6,6 +6,8 @@ from .serializers import (
     EvidenceSerializer,
     VerificationSerializer,
 )
+from .serializers import TrustedContactSerializer
+from .models import TrustedContact
 # from .serializers import VerificationSerializer
 
 from api.utils.hashing import verify_hash, generate_hash
@@ -169,3 +171,54 @@ def verify_evidence(request):
         "status": "modified",
         "message": "Evidence Modified"
     })
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def add_trusted_contact(request):
+
+    serializer = TrustedContactSerializer(data=request.data)
+
+    if serializer.is_valid():
+
+        serializer.save(user=request.user)
+
+        return Response(serializer.data, status=201)
+
+    return Response(serializer.errors, status=400)
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def list_trusted_contacts(request):
+
+    contacts = TrustedContact.objects.filter(user=request.user)
+
+    serializer = TrustedContactSerializer(
+        contacts,
+        many=True
+    )
+
+    return Response(serializer.data)
+
+@api_view(["DELETE"])
+@permission_classes([IsAuthenticated])
+def delete_trusted_contact(request, contact_id):
+
+    try:
+        contact = TrustedContact.objects.get(
+            id=contact_id,
+            user=request.user
+        )
+
+        contact.delete()
+
+        return Response(
+            {"message": "Trusted contact deleted successfully."},
+            status=200
+        )
+
+    except TrustedContact.DoesNotExist:
+
+        return Response(
+            {"error": "Trusted contact not found."},
+            status=404
+        )
