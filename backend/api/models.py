@@ -1,6 +1,7 @@
 import hashlib
 from django.db import models
 from django.contrib.auth.models import User
+from .utils.backup_manager import create_backup
 
 
 class Evidence(models.Model):
@@ -57,6 +58,11 @@ class Evidence(models.Model):
         blank=True
     )
 
+    backup_path = models.CharField(
+        max_length=500,
+        blank=True
+    )
+
     is_tampered = models.BooleanField(
         default=False
     )
@@ -98,7 +104,12 @@ class Evidence(models.Model):
 
             self.hash_value = self.generate_hash()
 
-            super().save(update_fields=['hash_value'])
+            super().save(update_fields=["hash_value"])
+
+
+        if self.file and not self.backup_path:
+
+            create_backup(self)
 
 class TrustedContact(models.Model):
     user = models.ForeignKey(
