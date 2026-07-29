@@ -5,6 +5,7 @@ from django.core.files.base import ContentFile
 from .serializers import (
     EvidenceSerializer,
     VerificationSerializer,
+    UserProfileSerializer,
 )
 from .serializers import TrustedContactSerializer
 from .models import TrustedContact
@@ -32,12 +33,34 @@ def test_api(request):
 @api_view(['POST'])
 def signup(request):
 
-    username = request.data['username']
-    password = request.data['password']
+    full_name = request.data.get("full_name")
+    username = request.data.get("username")
+    email = request.data.get("email")
+    password = request.data.get("password")
+
+    if not full_name or not username or not email or not password:
+        return Response(
+            {"error": "All fields are required."},
+            status=400
+        )
+
+    if User.objects.filter(username=username).exists():
+        return Response(
+            {"error": "Username already exists."},
+            status=400
+        )
+
+    if User.objects.filter(email=email).exists():
+        return Response(
+            {"error": "Email already exists."},
+            status=400
+        )
 
     user = User.objects.create_user(
         username=username,
-        password=password
+        email=email,
+        password=password,
+        first_name=full_name
     )
 
     return Response({
@@ -51,6 +74,60 @@ def protected_api(request):
 
     return Response({
         "message": "You are authenticated"
+    })
+
+@api_view(['GET', 'PUT'])
+@permission_classes([IsAuthenticated])
+def profile(request):
+
+    if request.method == "GET":
+
+        serializer = UserProfileSerializer(request.user)
+        return Response(serializer.data)
+
+    elif request.method == "PUT":
+
+        user = request.user
+
+        user.first_name = request.data.get(
+            "first_name",
+            user.first_name
+        )
+
+        user.email = request.data.get(
+            "email",
+            user.email
+        )
+
+        user.save()
+
+        serializer = UserProfileSerializer(user)
+
+        return Response({
+            "message": "Profile updated successfully",
+            "user": serializer.data
+        })
+
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def change_password(request):
+
+    user = request.user
+
+    current_password = request.data.get("current_password")
+    new_password = request.data.get("new_password")
+
+    if not user.check_password(current_password):
+        return Response(
+            {"error": "Current password is incorrect."},
+            status=400
+        )
+
+    user.set_password(new_password)
+    user.save()
+
+    return Response({
+        "message": "Password changed successfully."
     })
 
 from rest_framework.parsers import MultiPartParser, FormParser
@@ -111,7 +188,7 @@ def my_evidence(request):
 
     evidence = Evidence.objects.filter(
         user=request.user
-    )
+    ).order_by("-uploaded_at")
 
     serializer = EvidenceSerializer(
         evidence,

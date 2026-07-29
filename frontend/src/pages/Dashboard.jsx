@@ -15,6 +15,7 @@ import {
 function Dashboard() {
   const [evidenceCount, setEvidenceCount] = useState(0);
   const [contactCount, setContactCount] = useState(0);
+  const [recentEvidence, setRecentEvidence] = useState([]);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -39,6 +40,14 @@ function Dashboard() {
   
         setEvidenceCount(evidenceResponse.data.length);
         setContactCount(contactsResponse.data.length);
+        const latestEvidence = [...evidenceResponse.data]
+          .sort(
+            (a, b) =>
+              new Date(b.uploaded_at) - new Date(a.uploaded_at)
+          )
+          .slice(0, 3);
+
+        setRecentEvidence(latestEvidence);
       } catch (error) {
         console.error("Dashboard Error:", error);
       } finally {
@@ -157,10 +166,27 @@ function Dashboard() {
       <div className="dashboard-section">
         <h2>Recent Activity</h2>
 
-        <div className="empty-state">
-          <Activity size={45} />
-          <p>No recent activity available.</p>
-        </div>
+        {recentEvidence.length === 0 ? (
+          <div className="empty-state">
+            <Activity size={45} />
+            <p>No recent activity available.</p>
+          </div>
+        ) : (
+          <div className="recent-activity">
+            {recentEvidence.map((item) => (
+              <div key={item.id} className="activity-item">
+                <Activity size={20} />
+                <div>
+                  <strong>{item.file.split("/").pop()}</strong>
+                  <p>
+                    Uploaded on{" "}
+                    {new Date(item.uploaded_at).toLocaleString()}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

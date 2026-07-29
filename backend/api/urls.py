@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views import test_api, signup, protected_api, upload_evidence, my_evidence, verify_evidence, add_trusted_contact, list_trusted_contacts, delete_trusted_contact, generate_report
+from .views import test_api, signup, protected_api, upload_evidence, my_evidence, verify_evidence, add_trusted_contact, list_trusted_contacts, delete_trusted_contact, generate_report, profile, change_password
 
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -20,11 +20,15 @@ urlpatterns = [
 
     path('protected/', protected_api),
 
+    path("profile/", profile),
+
     path('upload-evidence/', upload_evidence),
 
     path('my-evidence/', my_evidence),
 
     path('verify-evidence/', verify_evidence),
+
+    path("change-password/", change_password),
 
     path(
     "trusted-contacts/",
