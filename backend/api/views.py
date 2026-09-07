@@ -6,15 +6,16 @@ from .serializers import (
     EvidenceSerializer,
     VerificationSerializer,
     UserProfileSerializer,
+    ReportSerializer,
 )
 from .serializers import TrustedContactSerializer
-from .models import TrustedContact
+from .models import TrustedContact, Report
 # from .serializers import VerificationSerializer
 
 from api.utils.hashing import verify_hash, generate_hash
 from api.utils.encryption import encrypt_file
 from api.utils.backup import backup_file
-from .utils.report_generator import generate_legal_report
+from .utils.report_generator import generate_document_summary
 from django.contrib.auth.models import User
 
 from rest_framework.decorators import api_view, permission_classes
@@ -304,26 +305,54 @@ def delete_trusted_contact(request, contact_id):
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def generate_report(request, evidence_id):
-
     try:
-
         evidence = Evidence.objects.get(
             id=evidence_id,
             user=request.user
         )
 
-        report_path = generate_legal_report(evidence)
+        # Generate the PDF using the existing document summary generator
+        report_path = generate_document_summary(evidence)
+
+        # Create Report record
+        with open(report_path, "rb") as pdf:
+            report = Report.objects.create(
+                user=request.user,
+                evidence=evidence
+            )
+
+            report.pdf_file.save(
+                os.path.basename(report_path),
+                File(pdf),
+                save=True
+            )
+
+        serializer = ReportSerializer(report)
 
         return Response({
             "message": "Report generated successfully.",
-            "report_path": report_path
+            "report": serializer.data
         })
 
     except Evidence.DoesNotExist:
-
         return Response(
             {
                 "error": "Evidence not found."
             },
             status=404
         )
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def list_reports(request):
+    reports = Report.objects.filter(
+        user=request.user
+    ).order_by("-created_at")
+
+    serializer = ReportSerializer(
+        reports,
+        many=True,
+        context={"request": request}
+    )
+
+    return Response(serializer.data)

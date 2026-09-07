@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Evidence
+from .models import Evidence, Report
 
 
 class EvidenceSerializer(serializers.ModelSerializer):
@@ -50,4 +50,26 @@ class UserProfileSerializer(serializers.ModelSerializer):
             "username",
             "email",
             "date_joined",
+        ]
+
+class ReportSerializer(serializers.ModelSerializer):
+    evidence_name = serializers.CharField(
+        source="evidence.file_name",
+        read_only=True
+    )
+
+    class Meta:
+        model = Report
+        fields = [
+            "id",
+            "evidence",
+            "evidence_name",
+            "pdf_file",
+            "created_at",
+        ]
+        read_only_fields = [
+            "id",
+            "evidence_name",
+            "pdf_file",
+            "created_at",
         ]

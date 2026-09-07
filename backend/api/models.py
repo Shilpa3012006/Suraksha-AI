@@ -130,3 +130,80 @@ class TrustedContact(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.relationship})"
+
+class Report(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="reports"
+    )
+    evidence = models.ForeignKey(
+        Evidence,
+        on_delete=models.CASCADE,
+        related_name="reports"
+    )
+    pdf_file = models.FileField(
+        upload_to="reports/"
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    def __str__(self):
+        return f"Report for Evidence {self.evidence.id}"
+
+class DirectCapture(models.Model):
+    capture_type = models.CharField(
+        max_length=20
+    )
+
+    file = models.FileField(
+        upload_to="direct_captures/"
+    )
+
+    encrypted_file = models.FileField(
+        upload_to="encrypted_direct_captures/",
+        blank=True,
+        null=True
+    )
+
+    file_name = models.CharField(
+        max_length=255,
+        blank=True
+    )
+
+    file_size = models.BigIntegerField(
+        default=0
+    )
+
+    file_type = models.CharField(
+        max_length=50,
+        blank=True
+    )
+
+    captured_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    latitude = models.FloatField(
+        null=True,
+        blank=True
+    )
+
+    longitude = models.FloatField(
+        null=True,
+        blank=True
+    )
+
+    hash_value = models.CharField(
+        max_length=256,
+        blank=True
+    )
+
+    backup_path = models.CharField(
+        max_length=500,
+        blank=True
+    )
+
+    def __str__(self):
+        return self.file_name

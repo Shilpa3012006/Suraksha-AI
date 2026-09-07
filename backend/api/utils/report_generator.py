@@ -4,12 +4,12 @@ from datetime import datetime
 import os
 
 
-def generate_legal_report(evidence):
+def generate_document_summary(evidence):
 
     reports_folder = "reports"
     os.makedirs(reports_folder, exist_ok=True)
 
-    filename = f"Legal_Report_{evidence.id}.pdf"
+    filename = f"Evidence_Summary_{evidence.id}.pdf"
 
     filepath = os.path.join(
         reports_folder,
@@ -22,7 +22,7 @@ def generate_legal_report(evidence):
 
     story = []
 
-    story.append(Paragraph("<b>Suraksha-AI Legal Evidence Report</b>", styles["Title"]))
+    story.append(Paragraph("<b>Suraksha-AI Evidence Summary</b>", styles["Title"]))
 
     story.append(Paragraph(f"Report Generated: {datetime.now()}", styles["Normal"]))
 
