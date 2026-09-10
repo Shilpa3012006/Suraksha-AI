@@ -7,9 +7,10 @@ from .serializers import (
     VerificationSerializer,
     UserProfileSerializer,
     ReportSerializer,
+    DirectCaptureSerializer,
 )
 from .serializers import TrustedContactSerializer
-from .models import TrustedContact, Report
+from .models import TrustedContact, Report,DirectCapture
 # from .serializers import VerificationSerializer
 
 from api.utils.hashing import verify_hash, generate_hash
@@ -356,3 +357,103 @@ def list_reports(request):
     )
 
     return Response(serializer.data)
+
+@api_view(["POST"])
+def direct_capture(request):
+    """
+    Public endpoint for capturing evidence without login.
+    """
+
+    uploaded_file = request.FILES.get("file")
+    capture_type = request.data.get("capture_type")
+
+    latitude = request.data.get("latitude")
+    longitude = request.data.get("longitude")
+
+    # Basic validation
+    if not uploaded_file:
+        return Response(
+            {"error": "No evidence file provided."},
+            status=400
+        )
+
+    if capture_type not in ["photo", "video", "audio"]:
+        return Response(
+            {"error": "Invalid capture type."},
+            status=400
+        )
+
+    # File size limit: 50 MB
+    max_file_size = 50 * 1024 * 1024
+
+    if uploaded_file.size > max_file_size:
+        return Response(
+            {"error": "File size must not exceed 50 MB."},
+            status=400
+        )
+
+    # Create capture record
+    capture = DirectCapture(
+        capture_type=capture_type,
+        latitude=latitude if latitude else None,
+        longitude=longitude if longitude else None,
+    )
+
+    capture.file.save(
+        uploaded_file.name,
+        uploaded_file,
+        save=False
+    )
+
+    capture.file_name = uploaded_file.name
+    capture.file_size = uploaded_file.size
+    capture.file_type = uploaded_file.content_type or ""
+
+    capture.save()
+
+    # Generate SHA-256 hash
+    from api.utils.hashing import generate_hash
+
+    original_path = capture.file.path
+    capture.hash_value = generate_hash(original_path)
+
+    # Encrypt the captured evidence
+    encrypted_path = original_path + ".encrypted"
+
+    encrypt_file(
+        original_path,
+        encrypted_path
+    )
+
+    with open(encrypted_path, "rb") as encrypted_file:
+        capture.encrypted_file.save(
+            os.path.basename(encrypted_path),
+            File(encrypted_file),
+            save=False
+        )
+
+    capture.save()
+
+    # Create secure backup of encrypted evidence
+    backup_directory = os.path.join(
+        "backups",
+        "direct_captures"
+    )
+
+    backup_path = backup_file(
+        encrypted_path,
+        backup_directory
+    )
+
+    capture.backup_path = backup_path
+    capture.save(update_fields=["backup_path"])
+
+    serializer = DirectCaptureSerializer(capture)
+
+    return Response(
+        {
+            "message": "Evidence captured and securely preserved.",
+            "capture": serializer.data,
+        },
+        status=201
+    )

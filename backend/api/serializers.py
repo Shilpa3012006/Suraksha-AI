@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Evidence, Report
+from .models import Evidence, Report, DirectCapture
 
 
 class EvidenceSerializer(serializers.ModelSerializer):
@@ -72,4 +72,32 @@ class ReportSerializer(serializers.ModelSerializer):
             "evidence_name",
             "pdf_file",
             "created_at",
+        ]
+
+class DirectCaptureSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DirectCapture
+        fields = [
+            "id",
+            "capture_type",
+            "file",
+            "encrypted_file",
+            "file_name",
+            "file_size",
+            "file_type",
+            "captured_at",
+            "latitude",
+            "longitude",
+            "hash_value",
+            "backup_path",
+        ]
+        read_only_fields = [
+            "id",
+            "encrypted_file",
+            "file_name",
+            "file_size",
+            "file_type",
+            "captured_at",
+            "hash_value",
+            "backup_path",
         ]

@@ -2769,3 +2769,36 @@
 }
 
 }
+
+.camera-section {
+  margin-top: 24px;
+}
+
+.camera-preview {
+  width: 100%;
+  max-width: 600px;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 14px;
+  display: block;
+  margin: 0 auto;
+  background: #000;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.camera-controls {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.camera-controls button {
+  min-width: 140px;
+}
+
+.recording-status {
+  margin-top: 12px;
+  font-weight: 600;
+  text-align: center;
+}
