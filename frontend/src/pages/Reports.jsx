@@ -102,7 +102,7 @@ function Reports() {
                 </p>
 
                 <p>
-                  Evidence ID: {report.evidence}
+                  Evidence ID: {report.evidence_id}
                 </p>
               </div>
 

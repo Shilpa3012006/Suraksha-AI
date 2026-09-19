@@ -177,7 +177,9 @@ function Dashboard() {
               <div key={item.id} className="activity-item">
                 <Activity size={20} />
                 <div>
-                  <strong>{item.file.split("/").pop()}</strong>
+                <strong>
+                  {(item.file_name || item.file || "Unnamed evidence").split("/").pop()}
+                </strong>
                   <p>
                     Uploaded on{" "}
                     {new Date(item.uploaded_at).toLocaleString()}

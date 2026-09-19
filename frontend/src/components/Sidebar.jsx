@@ -91,7 +91,9 @@ function Sidebar({ isOpen, onClose }) {
   return (
     <>
       <div
-        className={`sidebar-overlay ${isOpen ? "sidebar-overlay--visible" : ""}`}
+        className={`sidebar-overlay ${
+          isOpen ? "sidebar-overlay--visible" : ""
+        }`}
         onClick={onClose}
         aria-hidden="true"
       />
@@ -111,7 +113,9 @@ function Sidebar({ isOpen, onClose }) {
                 <NavLink
                   to={item.to}
                   className={({ isActive }) =>
-                    `sidebar__link ${isActive ? "sidebar__link--active" : ""}`
+                    `sidebar__link ${
+                      isActive ? "sidebar__link--active" : ""
+                    }`
                   }
                   onClick={onClose}
                 >
@@ -124,14 +128,37 @@ function Sidebar({ isOpen, onClose }) {
         </nav>
 
         <div className="sidebar__footer">
-          <button type="button" className="sidebar__logout" onClick={handleLogout}>
+          {/* Direct Capture option added above Logout */}
+          <NavLink
+            to="/capture"
+            className={({ isActive }) =>
+              `sidebar__link ${
+                isActive ? "sidebar__link--active" : ""
+              }`
+            }
+            onClick={onClose}
+          >
+            <span className="sidebar__link-label">Direct Capture</span>
+          </NavLink>
+
+          <button
+            type="button"
+            className="sidebar__logout"
+            onClick={handleLogout}
+          >
             <span className="sidebar__link-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
                 <polyline points="16 17 21 12 16 7" />
                 <line x1="21" y1="12" x2="9" y2="12" />
               </svg>
             </span>
+
             <span className="sidebar__link-label">Logout</span>
           </button>
         </div>

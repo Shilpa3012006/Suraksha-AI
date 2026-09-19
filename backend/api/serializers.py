@@ -53,26 +53,61 @@ class UserProfileSerializer(serializers.ModelSerializer):
         ]
 
 class ReportSerializer(serializers.ModelSerializer):
-    evidence_name = serializers.CharField(
-        source="evidence.file_name",
-        read_only=True
-    )
+    evidence_name = serializers.SerializerMethodField()
+    evidence_id = serializers.SerializerMethodField()
+    source = serializers.SerializerMethodField()
 
     class Meta:
         model = Report
         fields = [
             "id",
             "evidence",
+            "direct_capture",
+            "evidence_id",
             "evidence_name",
+            "source",
             "pdf_file",
             "created_at",
         ]
+
         read_only_fields = [
             "id",
+            "evidence_id",
             "evidence_name",
+            "source",
             "pdf_file",
             "created_at",
         ]
+
+    def get_evidence_name(self, obj):
+        if obj.evidence:
+            return obj.evidence.file_name
+
+        if obj.direct_capture:
+            return (
+                obj.direct_capture.file_name
+                or obj.direct_capture.file.name
+            )
+
+        return ""
+
+    def get_evidence_id(self, obj):
+        if obj.evidence:
+            return obj.evidence.evidence_id
+
+        if obj.direct_capture:
+            return obj.direct_capture.evidence_id
+
+        return None
+
+    def get_source(self, obj):
+        if obj.direct_capture:
+            return "Captured"
+
+        if obj.evidence:
+            return "Uploaded"
+
+        return ""
 
 class DirectCaptureSerializer(serializers.ModelSerializer):
     class Meta:

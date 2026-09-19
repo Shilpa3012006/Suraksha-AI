@@ -20,3 +20,5 @@ backend/.env
 *.sqlite3
 backend/media/
 backend/backups/
+
+backend/reports/
