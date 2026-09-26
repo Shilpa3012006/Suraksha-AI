@@ -13,6 +13,7 @@ import Dashboard from "./pages/Dashboard";
 import Reports from "./pages/Reports";
 import Profile from "./pages/Profile";
 import CaptureEvidence from "./pages/CaptureEvidence";
+import TrustedEvidence from "./pages/TrustedEvidence";
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/capture" element={<CaptureEvidence />} />
+        <Route path="/trusted-access/:accessToken" element={<TrustedEvidence />}/>
 
         {/* Protected routes */}
         <Route element={<ProtectedRoute />}>

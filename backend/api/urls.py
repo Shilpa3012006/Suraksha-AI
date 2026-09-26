@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views import test_api, signup, protected_api, upload_evidence, my_evidence, verify_evidence, add_trusted_contact, list_trusted_contacts, delete_trusted_contact, generate_report, profile, change_password, list_reports, direct_capture
+from .views import test_api, signup, protected_api, upload_evidence, my_evidence, verify_evidence, add_trusted_contact, list_trusted_contacts, delete_trusted_contact, generate_report, profile, change_password, list_reports, direct_capture, trusted_contact_evidence
 
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -58,6 +58,12 @@ path(
     "direct-capture/",
     direct_capture,
     name="direct_capture",
+),
+
+path(
+    "trusted-access/<str:access_token>/",
+    trusted_contact_evidence,
+    name="trusted_contact_evidence",
 ),
 
 ]

@@ -1,8 +1,10 @@
+import secrets
 import tempfile
 import os
 
 from django.core.files import File
 from django.core.files.base import ContentFile
+from django.core.mail import send_mail
 
 from .serializers import (
     EvidenceSerializer,
@@ -476,8 +478,24 @@ def add_trusted_contact(request):
 
     if serializer.is_valid():
 
-        serializer.save(
-            user=request.user
+        contact = serializer.save(
+            user=request.user,
+            access_token=secrets.token_urlsafe(48)
+        )
+
+        send_mail(
+            subject="Suraksha-AI Trusted Evidence Access",
+            message=(
+                f"Hello {contact.name},\n\n"
+                f"You have been added as a trusted contact by "
+                f"{request.user.username}.\n\n"
+                f"Your secure evidence access link will be provided here "
+                f"once the trusted evidence page is implemented.\n\n"
+                f"Suraksha-AI"
+            ),
+            from_email=None,
+            recipient_list=[contact.email],
+            fail_silently=False,
         )
 
         return Response(
@@ -892,4 +910,103 @@ def direct_capture(request):
 
         status=201
 
+    )
+
+# -------------------------------------------------
+# Trusted Contact Evidence Access
+# -------------------------------------------------
+
+@api_view(["GET"])
+def trusted_contact_evidence(request, access_token):
+
+    try:
+        contact = TrustedContact.objects.select_related(
+            "user"
+        ).get(
+            access_token=access_token
+        )
+
+    except TrustedContact.DoesNotExist:
+
+        return Response(
+            {
+                "error": "Invalid or expired trusted access link."
+            },
+            status=404
+        )
+
+    # -------------------------------------------------
+    # Use the same unified Evidence Library collection
+    # -------------------------------------------------
+
+    uploaded_evidence = Evidence.objects.filter(
+        user=contact.user
+    )
+
+    captured_evidence = DirectCapture.objects.all()
+
+    unified_evidence = []
+
+    for item in uploaded_evidence:
+
+        unified_evidence.append(
+            {
+                "id": item.evidence_id,
+                "file_name": (
+                    item.file_name
+                    or item.file.name
+                ),
+                "file_type": item.file_type or "",
+                "file": (
+                    item.file.url
+                    if item.file
+                    else None
+                ),
+                "source": "Uploaded",
+                "uploaded_at": item.uploaded_at,
+                "verification_status": (
+                    "Tampered"
+                    if item.is_tampered
+                    else "Verified"
+                ),
+                "is_tampered": item.is_tampered,
+                "hash_value": item.hash_value,
+                "description": item.description,
+                "record_type": "uploaded",
+            }
+        )
+
+    for item in captured_evidence:
+
+        unified_evidence.append(
+            {
+                "id": item.evidence_id,
+                "file_name": (
+                    item.file_name
+                    or item.file.name
+                ),
+                "file_type": item.file_type or "",
+                "file": (
+                    item.file.url
+                    if item.file
+                    else None
+                ),
+                "source": "Captured",
+                "uploaded_at": item.captured_at,
+                "verification_status": "Pending",
+                "is_tampered": False,
+                "hash_value": item.hash_value,
+                "description": "",
+                "record_type": "captured",
+            }
+        )
+
+    unified_evidence.sort(
+        key=lambda item: item["uploaded_at"] or "",
+        reverse=True
+    )
+
+    return Response(
+        unified_evidence,
+        status=200
     )

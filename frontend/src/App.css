@@ -2964,6 +2964,7 @@
   }
 
   .preview-actions {
+    
     flex-direction: column;
   }
 }
